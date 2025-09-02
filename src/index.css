@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Irish+Grover&family=Michroma&display=swap');
+@import "tailwindcss";
+
+
+.michroma-regular {
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
