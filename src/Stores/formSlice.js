@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { Form } from "../Forms/kitchenForm.js";
-const getInitialState = () => ({
+const getInitialState = {
   currentStep: 1,
   Form,
-})
+};
 const formSlice = createSlice({
   name: "form",
-  initialState: getInitialState(),
+  initialState: getInitialState,
   reducers: {
     updateField: (state, action) => {
       const { name, value } = action.payload;
@@ -26,9 +26,11 @@ const formSlice = createSlice({
       state.currentStep -= 1;
     },
     resetForm: () => {
-      return getInitialState();
+      for (let step of Form)
+        for (let field of step.fields) {
+          field.value = "";
+        }
     },
-    
   },
 });
 

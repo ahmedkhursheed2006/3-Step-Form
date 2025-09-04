@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, scale } from "motion/react";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi";
 import { RiResetRightFill } from "react-icons/ri";
 import { useSelector, useDispatch } from "react-redux";
@@ -66,7 +66,7 @@ function FormComponent() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(updateField({ name, value }));
-    if (!value.trim()) {
+    if (!value.trim() || !value) {
       return setErrors((prev) => ({ ...prev, [name]: `Field is required` }));
     } else {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -77,8 +77,11 @@ function FormComponent() {
     let valid = true;
     formStep.fields.forEach((field) => {
       if (!field.value || field.value.trim() === "") {
-        console.error(`${field.label} is required`);
         valid = false;
+        setErrors((prev) => ({
+          ...prev,
+          [field.name]: `${field.label} is required`,
+        }));
       }
     });
     return valid;
@@ -131,7 +134,10 @@ function FormComponent() {
 
                     <div className="grid grid-cols-2 gap-10 w-full p-8">
                       {step.fields.map((field) => (
-                        <div key={field.id} className="flex flex-col relative">
+                        <motion.div  whileHover={{scale : 1.05}} transition={{ duration: 0.5, ease: "easeInOut" }} key={field.id} className="flex flex-col relative">
+                          <div className="absolute right-2.5 bottom-2.5 opacity-70 text-[#1C09A1]">
+                            {formIcons[field.name]}
+                          </div>
                           <label
                             htmlFor={field.name}
                             className="text-sm font-semibold text-[#1C09A1]"
@@ -146,7 +152,12 @@ function FormComponent() {
                             placeholder={field.placeholder}
                             onChange={handleChange}
                           />
-                        </div>
+                          {errors[field.name] && (
+                            <span className="text-red-500 text-sm absolute top-14">
+                              {errors[field.name]}
+                            </span>
+                          )}
+                        </motion.div>
                       ))}
                     </div>
                   </div>
