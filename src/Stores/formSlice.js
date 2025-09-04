@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Form } from "../Forms/kitchenForm.js";
 const getInitialState = () => ({
   currentStep: 1,
-  Form: structuredClone(Form),
+  Form,
 })
 const formSlice = createSlice({
   name: "form",

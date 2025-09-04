@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi";
 import { RiResetRightFill } from "react-icons/ri";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,21 +10,67 @@ import {
   prevStep,
   resetForm,
 } from "../Stores/formSlice.js";
-
+import { FaLocationDot } from "react-icons/fa6";
+import { FaPhone, FaUser, FaDigitalTachograph } from "react-icons/fa";
+import {
+  MdContactPhone,
+  MdAccountBalanceWallet,
+  MdSubtitles,
+} from "react-icons/md";
+import { IoMdMail } from "react-icons/io";
+import { HiIdentification } from "react-icons/hi2";
+import { BsBank2 } from "react-icons/bs";
+import { IoRestaurant } from "react-icons/io5";
 function FormComponent() {
   const formHeader = ["Restaurant Details", "Owner Details", "Bank Details"];
+  const formIcons = {
+    restaurantName: <IoRestaurant />,
+    restaurantAddress: <FaLocationDot />,
+    restaurantPhoneNumber: <FaPhone />,
+    ownerName: <FaUser />,
+    ownerContactNumber: <MdContactPhone />,
+    ownerContactEmail: <IoMdMail />,
+    governmentID: <HiIdentification />,
+    bankName: <BsBank2 />,
+    accountNumber: <MdAccountBalanceWallet />,
+    accountTitle: <MdSubtitles />,
+    ibanNumber: <FaDigitalTachograph />,
+  };
+
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [direction, setDirection] = useState(1);
 
   const { currentStep, Form } = useSelector((state) => state.form);
   const dispatch = useDispatch();
 
   // get current step from Redux Form
   const formStep = Form.find((item) => item.id === currentStep);
-  
+
+  const [errors, setErrors] = useState({});
+
+  const variants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 200 : -200, // from right if next, from left if back
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction) => ({
+      x: direction > 0 ? -200 : 200, // to left if next, to right if back
+      opacity: 0,
+    }),
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(updateField({ name, value }));
+    if (!value.trim()) {
+      return setErrors((prev) => ({ ...prev, [name]: `Field is required` }));
+    } else {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const validateStep = () => {
@@ -42,52 +90,68 @@ function FormComponent() {
     }
   };
 
+  const handleReset = () => {
+    dispatch(resetForm());
+    setErrors({});
+  };
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       <header className="text-center text-6xl text-[#F8F2FF] p-8 michroma-regular">
         <span className="michroma-regular">3 Step Form</span>
       </header>
-      <main className="flex items-center justify-center w-full">
+      <main className="flex items-center justify-center w-full overflow-hidden">
         {formSubmitted === false ? (
-          <div className="flex flex-col items-center justify-between bg-[#ecefff] rounded-2xl w-7/10">
+          <div className="flex flex-col items-center justify-between bg-[#ecefff] rounded-2xl w-7/10 overflow-hidden">
             <form
               onSubmit={handleSubmit}
               className="flex flex-col h-[25rem] items-center justify-around w-full mt-5 relative"
             >
               <RiResetRightFill
-                onClick={() => dispatch(resetForm())}
-                className="text-lg text-[#1C09A1] absolute top-0 left-5 cursor-pointer"
+                onClick={() => handleReset()}
+                className="text-lg text-[#1C09A1] absolute top-0 left-5 cursor-pointer z-10"
                 title="Reset Form"
               />
-              <span className="text-sm font-semibold absolute top-0 right-5 text-[#1C09A1]">
+              <span className="text-sm font-semibold absolute top-0 right-5 text-[#1C09A1] z-10">
                 {currentStep}/{formHeader.length}
               </span>
-              <h2 className="text-[#1C09A1] text-center text-4xl border-b-2 border-[#1C09A1] pb-2">
-                {formStep.categoryName}
-              </h2>
-              <div className="grid grid-cols-2 justify-start p-8 w-full gap-10">
-                {formStep.fields.map((field) => (
-                  <div key={field.id} className="flex flex-col">
-                    <label
-                      htmlFor={field.name}
-                      className="text-sm text-[#1C09A1] font-semibold"
-                    >
-                      {field.label}*
-                    </label>
+              <motion.div
+                className="flex w-full max-w-4xl" // flex row holding all steps
+                animate={{ x: `-${(currentStep - 1) * 100}%` }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+              >
+                {Form.map((step) => (
+                  <div
+                    key={step.id}
+                    className="w-full flex-shrink-0 flex flex-col items-center justify-around bg-[#ecefff] rounded-2xl p-8"
+                  >
+                    <h2 className="text-[#1C09A1] text-center text-4xl border-b-2 border-[#1C09A1] pb-2">
+                      {step.categoryName}
+                    </h2>
 
-                    <input
-                      className="border-[#1C09A1] border-b-[1px] active:border-none outline-none active:rounded-sm  p-1"
-                      type={field.type}
-                      name={field.name}
-                      id={field.id}
-                      value={field.value || ""}
-                      onChange={handleChange}
-                      placeholder={field.placeholder}
-                      required
-                    />
+                    <div className="grid grid-cols-2 gap-10 w-full p-8">
+                      {step.fields.map((field) => (
+                        <div key={field.id} className="flex flex-col relative">
+                          <label
+                            htmlFor={field.name}
+                            className="text-sm font-semibold text-[#1C09A1]"
+                          >
+                            {field.label}*
+                          </label>
+                          <input
+                            className="border-b border-[#1C09A1] outline-none p-1"
+                            type={field.type}
+                            name={field.name}
+                            value={field.value || ""}
+                            placeholder={field.placeholder}
+                            onChange={handleChange}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
-              </div>
+              </motion.div>
               <div
                 className={`${
                   currentStep > 1 ? "justify-between" : "justify-end"
@@ -96,7 +160,9 @@ function FormComponent() {
                 {currentStep > 1 && (
                   <button
                     type="button"
-                    onClick={() => dispatch(prevStep())}
+                    onClick={() => {
+                      setDirection(-1), dispatch(prevStep());
+                    }}
                     className="flex items-center gap-2 text-[#1C09A1] font-semibold cursor-pointer"
                   >
                     <HiArrowLeft />
@@ -117,9 +183,10 @@ function FormComponent() {
                 ) : (
                   <button
                     className="flex items-center gap-2 text-[#1C09A1] font-semibold cursor-pointer"
-                    type="submit"
+                    type="button"
                     onClick={() => {
                       if (validateStep()) {
+                        setDirection(1); // forward
                         dispatch(nextStep());
                       }
                     }}
@@ -132,7 +199,16 @@ function FormComponent() {
             </form>
           </div>
         ) : (
-          <div className="bg-white flex items-center justify-around w-6/10 text-white flex-col p-10 h-[25rem] rounded-2xl michroma-regular">
+          <motion.div
+            key="submitted"
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="bg-white flex items-center justify-around w-6/10 flex-col p-10 h-[25rem] rounded-2xl michroma-regular"
+          >
             <h3 className="text-[#1C09A1] text-4xl">Form Submitted</h3>
             <button
               onClick={() => {
@@ -143,7 +219,7 @@ function FormComponent() {
             >
               Go Back
             </button>
-          </div>
+          </motion.div>
         )}
       </main>
     </div>
