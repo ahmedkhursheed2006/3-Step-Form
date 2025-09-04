@@ -66,9 +66,9 @@ function FormComponent() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(updateField({ name, value }));
-    if (!value.trim() || !value) {
-      return setErrors((prev) => ({ ...prev, [name]: `Field is required` }));
-    } else {
+    if (value.trim() || value) {
+    //   return setErrors((prev) => ({ ...prev, [name]: `Field is required` }));
+    // } else {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
@@ -80,7 +80,7 @@ function FormComponent() {
         valid = false;
         setErrors((prev) => ({
           ...prev,
-          [field.name]: `${field.label} is required`,
+          [field.name]: `Field is required`,
         }));
       }
     });
@@ -134,18 +134,31 @@ function FormComponent() {
 
                     <div className="grid grid-cols-2 gap-10 w-full p-8">
                       {step.fields.map((field) => (
-                        <motion.div  whileHover={{scale : 1.05}} transition={{ duration: 0.5, ease: "easeInOut" }} key={field.id} className="flex flex-col relative">
-                          <div className="absolute right-2.5 bottom-2.5 opacity-70 text-[#1C09A1]">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.5, ease: "easeInOut" }}
+                          key={field.id}
+                          className="flex flex-col relative"
+                        >
+                          <div
+                            className={`absolute right-2.5 bottom-2.5 opacity-70 text-[#1C09A1] ${
+                              errors[field.name] ? "text-red-500" : ""
+                            }`}
+                          >
                             {formIcons[field.name]}
                           </div>
                           <label
                             htmlFor={field.name}
-                            className="text-sm font-semibold text-[#1C09A1]"
+                            className={`text-sm font-semibold text-[#1C09A1] ${
+                              errors[field.name] ? "text-red-500" : ""
+                            }`}
                           >
                             {field.label}*
                           </label>
                           <input
-                            className="border-b border-[#1C09A1] outline-none p-1"
+                            className={`border-b border-[#1C09A1] outline-none p-1 ${
+                              errors[field.name] ? "border-red-500" : ""
+                            }`}
                             type={field.type}
                             name={field.name}
                             value={field.value || ""}
@@ -210,14 +223,8 @@ function FormComponent() {
             </form>
           </div>
         ) : (
-          <motion.div
-            key="submitted"
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+          <div
+            
             className="bg-white flex items-center justify-around w-6/10 flex-col p-10 h-[25rem] rounded-2xl michroma-regular"
           >
             <h3 className="text-[#1C09A1] text-4xl">Form Submitted</h3>
@@ -230,7 +237,7 @@ function FormComponent() {
             >
               Go Back
             </button>
-          </motion.div>
+          </div>
         )}
       </main>
     </div>

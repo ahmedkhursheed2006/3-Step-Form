@@ -25,11 +25,13 @@ const formSlice = createSlice({
     prevStep: (state) => {
       state.currentStep -= 1;
     },
-    resetForm: () => {
-      for (let step of Form)
+    resetForm: (state) => {
+      for (let step of state.Form) {
         for (let field of step.fields) {
-          field.value = "";
+          field.value = ""; // mutate the state, not the imported Form
         }
+      }
+      state.currentStep = 1; // reset step
     },
   },
 });
