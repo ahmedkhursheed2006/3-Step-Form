@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { Form } from "../Forms/kitchenForm.js";
 const getInitialState = {
-  currentStep: 1,
+  currentStep: 0,
   Form,
 };
 const formSlice = createSlice({
@@ -25,6 +25,7 @@ const formSlice = createSlice({
     prevStep: (state) => {
       state.currentStep -= 1;
     },
+
     resetForm: (state) => {
       for (let step of state.Form) {
         for (let field of step.fields) {

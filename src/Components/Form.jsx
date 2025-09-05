@@ -66,9 +66,9 @@ function FormComponent() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     dispatch(updateField({ name, value }));
-    if (value.trim() || value) {
-    //   return setErrors((prev) => ({ ...prev, [name]: `Field is required` }));
-    // } else {
+    if (!value.trim() || !value) {
+      return setErrors((prev) => ({ ...prev, [name]: `Field is required` }));
+    } else {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
